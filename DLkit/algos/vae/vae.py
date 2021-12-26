@@ -21,7 +21,7 @@ class VAETrainer():
         # build data_loader and vae
         agent_config = {
                 'img_size': (1, 28, 28),
-                'variable_size': 4,
+                'variable_size': 10,
                 'hidden_sizes': [512,256],
                 'learning_rate': config['learning_rate'],
                 }
