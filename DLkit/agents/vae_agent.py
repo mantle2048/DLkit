@@ -42,7 +42,7 @@ class VAEAgent(BaseAgent):
             os.mkdir(model_path)
 
         self.itr += 1
-        self.save_image(img_path, self.itr)
+        self.save_image(img_path)
         self.save_model(model_path)
 
     def save_image(self, img_path: str, itr=None):

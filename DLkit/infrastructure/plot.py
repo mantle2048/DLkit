@@ -5,7 +5,7 @@
 # run_dir (such as "td3_Ant-v3_seed_0") 
 # event_dir (such as "progress.txt or events.out.tfevents")
 
-%matplotlib notebook
+# %matplotlib notebook
 from typing import List, Dict
 
 import tensorflow as tf
@@ -20,7 +20,7 @@ data_dir = os.path.join(os.getcwd(), 'run_logs')
 img_dir = os.path.join(os.getcwd(), 'image')
 
 def get_event_data(event_dir: str) -> pd.DataFrame:
-    exp_name = event_dir.split('/')[-3] 
+    exp_name = event_dir.split('/')[-3]
     run_name = event_dir.split('/')[-2]
     EvalAverageReturn = []
     Steps = []
@@ -53,6 +53,7 @@ def plot_data(data: pd.DataFrame, ax=None, xaxis='Iteration', value='EvalAverage
             data[value]=uniform_filter1d(data[value], size=smooth)
     if isinstance(data, list):
         data = pd.concat(data, ignore_index=True)
+
     env_name = data['Condition1'][0].split('_')[-1]
     sns.set(style='whitegrid', palette='tab10', font_scale=1.5)
     sns.lineplot(data=data, x=xaxis, y=value, hue=condition, ci='sd', ax=ax, linewidth=3.0)

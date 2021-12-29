@@ -38,6 +38,14 @@ class VAETrainer():
                 train_loader = self.dl_trainer.train_loader,
                 test_loader = self.dl_trainer.test_loader
                 )
+        self.plot_data()
+
+    def plot_data(self):
+        xaxis = 'Epoch'
+        what_to_plot = ['reconstruct_loss', 'kl_divergence']
+        self.dl_trainer.plot_data(xaxis, what_to_plot)
+
+
 
 if __name__ == '__main__':
 
