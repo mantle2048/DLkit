@@ -10,3 +10,7 @@ class BasePolicy(object):
 
     def save(self, filepath: str):
         raise NotImplementedError
+
+    def test(self):
+        """Return a dictionary of test logging information."""
+        raise NotImplementedError

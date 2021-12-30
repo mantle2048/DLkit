@@ -42,7 +42,12 @@ class VAETrainer():
 
     def plot_data(self):
         xaxis = 'Epoch'
-        what_to_plot = ['reconstruct_loss', 'kl_divergence']
+        what_to_plot = [
+            'train_reconstruct_loss',
+            'train_kl_divergence',
+            'test_reconstruct_loss',
+            'test_kl_divergence',
+        ]
         self.dl_trainer.plot_data(xaxis, what_to_plot)
 
 

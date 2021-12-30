@@ -65,16 +65,21 @@ class DLTrainer():
                 train_log = self.agent.train(data)
                 self.logger.store(**train_log)
 
+            for data, label in test_loader:
+                test_log = self.agent.test(data)
+                self.logger.store(**test_log)
+
             self.logger.log_tabular('Epoch', epoch)
             self.logger.log_tabular('Exp', self.config['exp_name'])
             self.logger.log_tabular('Time', (time.time() - self.start_time) / 60)
 
             for key, value in self.logger.epoch_dict.items():
-                    self.logger.log_tabular(key, average_only=True)
+                self.logger.log_tabular(key, average_only=True)
 
             self.logger.dump_tabular()
 
             self.agent.save(filepath=self.logger.output_dir)
+
 
     def plot_data(self, xaxis: str, yaxis: Union[str, list]):
 

@@ -23,10 +23,16 @@ class VAEAgent(BaseAgent):
             agent_config['learning_rate']
         )
 
-    def train(self, data: torch.Tensor):
+    def train(self, data: torch.Tensor) -> OrderedDict:
 
         loss = OrderedDict()
-        loss['reconstruct_loss'], loss['kl_divergence'] = self.vae.update(data)
+        loss['train_reconstruct_loss'], loss['train_kl_divergence'] = self.vae.update(data)
+        return loss
+
+    def test(self, data: torch.Tensor) -> OrderedDict:
+
+        loss = OrderedDict()
+        loss['test_reconstruct_loss'], loss['test_kl_divergence'] = self.vae.test(data)
         return loss
 
     def save(self, filepath: str):

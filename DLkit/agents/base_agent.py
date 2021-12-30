@@ -8,6 +8,10 @@ class BaseAgent(object):
         """Return a dictionary of logging information."""
         raise NotImplementedError
 
+    def test(self) -> Dict:
+        """Return a dictionary of logging information."""
+        raise NotImplementedError
+
     def save(self, filepath: str):
         raise NotImplementedError
 

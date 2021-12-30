@@ -26,29 +26,34 @@ class VAEPolicy(BasePolicy, nn.Module):
         self.input_size = np.prod(self.img_size)
         self.variable_size = variable_size
         self.hidden_sizes = hidden_sizes
-        self
         self.lr = learing_rate
 
-        self.encoder_net = build_mlp(self.input_size, None, self.hidden_sizes)
-        self.mu_net = nn.Linear(self.hidden_sizes[-1], self.variable_size)
-        self.logstd_net = nn.Linear(self.hidden_sizes[-1], self.variable_size)
+        self.encoder_net = build_mlp(self.input_size, self.variable_size, self.hidden_sizes)
+        log_std = -0.5 * torch.ones(self.variable_size, dtype=torch.float32)
+
+        # self.encoder_net = build_mlp(self.input_size, None, self.hidden_sizes)
+        # self.mu_net = nn.Linear(self.hidden_sizes[-1], self.variable_size)
+        # self.logstd_net = nn.Linear(self.hidden_sizes[-1], self.variable_size)
 
         self.decoder_net = build_mlp(self.variable_size, self.input_size, self.hidden_sizes, output_activation='sigmoid')
 
+        self.log_std = nn.Parameter(log_std).to(ptu.device)
         self.encoder_net.to(ptu.device)
         self.decoder_net.to(ptu.device)
-        self.mu_net.to(ptu.device)
-        self.logstd_net.to(ptu.device)
+        # self.mu_net.to(ptu.device)
+        # self.logstd_net.to(ptu.device)
 
         self.BCELoss = nn.BCELoss()
         self.optimizer = optim.Adam(self.parameters(), lr = self.lr)
 
     def encoder(self, x: torch.Tensor) -> Tuple[torch.Tensor]:
 
-        x = self.encoder_net(x)
-        mu = self.mu_net(x)
-        logstd  = self.logstd_net(x)
-        std = torch.exp(logstd)
+        # x = self.encoder_net(x)
+        # mu = self.mu_net(x)
+        # logstd  = self.logstd_net(x)
+        # std = torch.exp(logstd)
+        mu = self.encoder_net(x)
+        std = torch.exp(self.log_std)
 
         return mu, std
 
@@ -72,7 +77,6 @@ class VAEPolicy(BasePolicy, nn.Module):
         p = N(mu1,sigma1), q = N(mu2, sigma2)
         KL(p||q) = log(sigma2/sigma1) + (sigma1^2 + (mu1-mu2)^2) / 2*sigma2^2 - 1/2
         '''
-
         batch_size = x.shape[0]
         x = x.view(batch_size, -1).to(ptu.device)
         mu, std = self.encoder(x)
@@ -82,11 +86,24 @@ class VAEPolicy(BasePolicy, nn.Module):
         reconstruction_loss = self.BCELoss(reconstruct_x, x)
         kl_divergence = 0.5 * (torch.pow(std, 2) + torch.pow(mu, 2) - 1 - 2 * torch.log(std)).mean()
 
-
         elbo_loss = reconstruction_loss + kl_divergence
         self.optimizer.zero_grad()
         elbo_loss.backward()
         self.optimizer.step()
+
+        return reconstruction_loss.item(), kl_divergence.item()
+
+    def test(self, x: torch.Tensor):
+
+        with torch.no_grad():
+            batch_size = x.shape[0]
+            x = x.view(batch_size, -1).to(ptu.device)
+            mu, std = self.encoder(x)
+            z = self.sample(mu, std)
+            reconstruct_x = self.decoder(z)
+
+            reconstruction_loss = self.BCELoss(reconstruct_x, x)
+            kl_divergence = 0.5 * (torch.pow(std, 2) + torch.pow(mu, 2) - 1 - 2 * torch.log(std)).mean()
 
         return reconstruction_loss.item(), kl_divergence.item()
 
